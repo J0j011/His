@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up Page</title>
+    <link rel="stylesheet" href="style/login-signup.css">
+    <script src="auth-local.js" defer></script>
+</head>
+<body class="background">
+    <img class="image-container" src="images/wHIS.png" alt="Halley logo silhouette">
+
+    <div class="container">
+    <h1 class="header">Sign Up Page</h1>
+    
+    <form action="homepage.html" method="GET" data-auth="signup" data-login-target="login-database.html">
+        <div class="form-group">
+        <label class="username-label" for="signup-username">Username:</label>
+        <input class="username" type="text" id="signup-username" name="signup-username" required ><br><br>
+        </div>
+        <!--username-->
+        
+        <div class="form-group">
+        <label class="password-label" for="signup-password">Password:</label>
+        <input class="password" type="password" id="signup-password" name="signup-password" required placeholder="Enter your password here"><br><br>
+        </div>
+        <!--password-->
+        
+        <div class="form-group">
+        <label class="username-label" for="signup-email">Email:</label>
+        <input class="username" type="email" id="signup-email" name="signup-email" required ><br><br>
+        </div>
+        <!--email-->
+
+        <div class="form-group">
+        <label class="username-label" for="phone">Phone:</label>
+        <input class="username" type="tel" id="phone" name="phone"><br><br>
+        </div>
+        <!--phone-->
+        <input class="login" type="submit" value="Sign Up">
+    </form>
+
+    <p id="form-message" role="status" aria-live="polite"></p>
+    <button class="secondary-button" type="button" id="admin-unlock">Admin unlock</button>
+    <button class="secondary-button" type="button" id="admin-logout">Admin logout</button>
+    <button class="secondary-button" type="button" id="clear-accounts">Clear saved accounts</button>
+
+    <br>
+    <p>Already have an account? <a href="login-database.html">Login here</a></p>
+    </div>
+
+</body>
+</html>
