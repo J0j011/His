@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="style/style.css">
+    <script src="config.js"></script>
+    <script src="auth-local.js" defer></script>
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-content">
+        <img class="image-logo" style="width:70px;" src="images/wHIS.png" alt="Halley International School logo">
+        <div class="header-text">
+          <h1 hidden>Halley International School</h1>
+          <p hidden class="sub-header">A community of self-independent young leaders</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="profile-page">
+      <section class="profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar">
+            <img id="profile-avatar" alt="" />
+            <span id="profile-initials">U</span>
+          </div>
+          <div>
+            <h2>My Profile</h2>
+            <p>Update your contact info and password.</p>
+          </div>
+        </div>
+
+        <form data-profile>
+          <div class="profile-field">
+            <label for="profile-email">Email</label>
+            <input type="email" id="profile-email" required>
+          </div>
+          <div class="profile-field">
+            <label for="profile-phone">Phone</label>
+            <input type="tel" id="profile-phone">
+          </div>
+          <div class="profile-field">
+            <label for="profile-password">New Password</label>
+            <input type="password" id="profile-password" placeholder="Leave blank to keep current">
+          </div>
+          <div class="profile-field">
+            <label for="profile-image">Profile Photo</label>
+            <input type="file" id="profile-image" accept="image/*">
+          </div>
+
+          <div class="profile-actions">
+            <button type="button" id="send-code">Send verification code</button>
+            <div class="profile-field">
+              <label for="verification-code">Verification Code</label>
+              <input type="text" id="verification-code" placeholder="Enter the code">
+              <button type="button" id="resend-code">Resend code</button>
+            </div>
+            <button type="submit">Save changes</button>
+          </div>
+        </form>
+
+        <p id="profile-message" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+  </body>
+</html>
