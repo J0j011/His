@@ -26,7 +26,11 @@
       <!--username-->
       <div class="form-group">
       <label class="password-label"for="password">Password:</label>
-      <input class="password" type="password" id="password" name="password" required placeholder="Enter your password here"><br><br>
+      <div class="input-row">
+        <input class="password" type="password" id="password" name="password" required placeholder="Enter your password here">
+        <button class="toggle-password" type="button" data-toggle="password" data-target="password">Show</button>
+      </div>
+      <br><br>
       </div>
       <!--password-->
       <input class="login" type="submit" value="Login">

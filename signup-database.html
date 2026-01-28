@@ -22,7 +22,11 @@
         
         <div class="form-group">
         <label class="password-label" for="signup-password">Password:</label>
-        <input class="password" type="password" id="signup-password" name="signup-password" required placeholder="Enter your password here"><br><br>
+        <div class="input-row">
+        <input class="password" type="password" id="signup-password" name="signup-password" required placeholder="Enter your password here">
+        <button class="toggle-password" type="button" data-toggle="password" data-target="signup-password">Show</button>
+        </div>
+        <br><br>
         </div>
         <!--password-->
         
@@ -34,7 +38,18 @@
 
         <div class="form-group">
         <label class="username-label" for="phone">Phone:</label>
-        <input class="username" type="tel" id="phone" name="phone"><br><br>
+        <div class="phone-row">
+        <select class="country-code" id="phone-country" name="phone-country" aria-label="Country code">
+          <option value="+1">🇺🇸 +1</option>
+          <option value="+44">🇬🇧 +44</option>
+          <option value="+20">🇪🇬 +20</option>
+          <option value="+971">🇦🇪 +971</option>
+          <option value="+966">🇸🇦 +966</option>
+          <option value="+91">🇮🇳 +91</option>
+        </select>
+        <input class="username" type="tel" id="phone" name="phone" placeholder="Phone number">
+        </div>
+        <br><br>
         </div>
         <!--phone-->
         <input class="login" type="submit" value="Sign Up">

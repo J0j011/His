@@ -78,6 +78,35 @@
     cursor: pointer;
 }
 
+.input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.input-row .password {
+    flex: 1;
+}
+
+.toggle-password {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    background: #ffffff;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.phone-row {
+    display: flex;
+    gap: 8px;
+}
+
+.country-code {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
 .secondary-button {
 
     width: 100%;

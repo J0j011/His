@@ -114,6 +114,27 @@ body {
   border: 1px solid #c7c7c7;
 }
 
+.profile-phone-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.profile-phone-row select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #c7c7c7;
+  background: #ffffff;
+}
+
+.profile-phone-row .toggle-password {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #c7c7c7;
+  background: #ffffff;
+  cursor: pointer;
+}
+
 .profile-actions {
   margin-top: 16px;
   display: grid;

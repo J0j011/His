@@ -22,7 +22,11 @@
         <!--username-->
         <div class="form-group">
         <label class="password-label" for="login-password">Password:</label>
-        <input class="password" type="password" id="login-password" name="login-password" required placeholder="Enter your password here"><br><br>
+        <div class="input-row">
+        <input class="password" type="password" id="login-password" name="login-password" required placeholder="Enter your password here">
+        <button class="toggle-password" type="button" data-toggle="password" data-target="login-password">Show</button>
+        </div>
+        <br><br>
         </div>
         <!--password-->
         <input class="login" type="submit" value="Login">

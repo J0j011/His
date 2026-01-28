@@ -27,6 +27,8 @@
   const normalize = (value) => value.trim();
   const normalizeKey = (value) => value.trim().toLowerCase();
   const imageKeyFor = (username) => `his_profile_image_${normalizeKey(username)}`;
+  const normalizePhone = (value) => value.replace(/[^\d+]/g, "");
+  const normalizePhoneKey = (value) => normalizePhone(value).replace(/^00/, "+");
 
   const getCurrentUser = () => {
     const username = localStorage.getItem(CURRENT_USER_KEY);
@@ -77,6 +79,36 @@
     return null;
   };
 
+  const updateToggleButton = (button, input) => {
+    if (!button || !input) {
+      return;
+    }
+
+    const isHidden = input.type === "password";
+    button.textContent = isHidden ? "Show" : "Hide";
+  };
+
+  const parsePhoneForSelect = (phoneValue, selectEl, inputEl) => {
+    if (!phoneValue || !selectEl || !inputEl) {
+      return;
+    }
+
+    const normalized = normalizePhoneKey(phoneValue);
+    const options = Array.from(selectEl.options || []);
+    const match = options
+      .map((option) => option.value)
+      .sort((a, b) => b.length - a.length)
+      .find((value) => normalized.startsWith(value));
+
+    if (match) {
+      selectEl.value = match;
+      inputEl.value = normalized.slice(match.length);
+      return;
+    }
+
+    inputEl.value = normalized;
+  };
+
   document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector("form[data-auth]");
     const profileForm = document.querySelector("form[data-profile]");
@@ -93,6 +125,7 @@
     const profileImageInput = document.getElementById("profile-image");
     const sendCodeButton = document.getElementById("send-code");
     const resendCodeButton = document.getElementById("resend-code");
+    const toggleButtons = document.querySelectorAll("button[data-toggle='password']");
 
     if (clearButton) {
       const isAdmin = localStorage.getItem(ADMIN_KEY) === "true";
@@ -188,6 +221,7 @@
 
       const emailInput = document.getElementById("profile-email");
       const phoneInput = document.getElementById("profile-phone");
+      const phoneCountrySelect = document.getElementById("profile-phone-country");
       const passwordInput = document.getElementById("profile-password");
       const codeInput = document.getElementById("verification-code");
       const hideResend = () => {
@@ -205,7 +239,7 @@
         emailInput.value = account.email || "";
       }
       if (phoneInput) {
-        phoneInput.value = account.phone || "";
+        parsePhoneForSelect(account.phone || "", phoneCountrySelect, phoneInput);
       }
 
       const imageKey = imageKeyFor(currentUser);
@@ -287,7 +321,9 @@
         event.preventDefault();
 
         const updatedEmail = emailInput ? normalize(emailInput.value) : "";
-        const updatedPhone = phoneInput ? normalize(phoneInput.value) : "";
+        const rawPhone = phoneInput ? normalizePhone(phoneInput.value) : "";
+        const phoneCountry = phoneCountrySelect ? phoneCountrySelect.value : "";
+        const updatedPhone = rawPhone ? `${phoneCountry}${rawPhone}` : "";
         const updatedPassword = passwordInput ? normalize(passwordInput.value) : "";
 
         const hasChanges =
@@ -321,7 +357,8 @@
           (item) =>
             normalizeKey(item.username) !== normalizeKey(account.username) &&
             (normalizeKey(item.email) === normalizeKey(updatedEmail) ||
-              (updatedPhone && normalizeKey(item.phone || "") === normalizeKey(updatedPhone)))
+              (updatedPhone &&
+                normalizePhoneKey(item.phone || "") === normalizePhoneKey(updatedPhone)))
         );
 
         if (duplicate) {
@@ -377,11 +414,14 @@
         const passwordInput = findInput(["signup-password", "password"]);
         const emailInput = findInput(["signup-email", "email"]);
         const phoneInput = findInput(["phone"]);
+        const phoneCountrySelect = document.getElementById("phone-country");
 
         const username = usernameInput ? normalize(usernameInput.value) : "";
         const password = passwordInput ? normalize(passwordInput.value) : "";
         const email = emailInput ? normalize(emailInput.value) : "";
-        const phone = phoneInput ? normalize(phoneInput.value) : "";
+        const rawPhone = phoneInput ? normalizePhone(phoneInput.value) : "";
+        const phoneCountry = phoneCountrySelect ? phoneCountrySelect.value : "";
+        const phone = rawPhone ? `${phoneCountry}${rawPhone}` : "";
 
         if (!username || !password || !email) {
           setMessage(messageEl, "Please fill in username, password, and email.", true);
@@ -396,11 +436,19 @@
 
         const usernameKey = normalizeKey(username);
         const emailKey = normalizeKey(email);
-        const exists = accounts.some(
-          (account) =>
+        const phoneKey = phone ? normalizePhoneKey(phone) : "";
+        const exists = accounts.some((account) => {
+          if (
             normalizeKey(account.username) === usernameKey ||
             normalizeKey(account.email) === emailKey
-        );
+          ) {
+            return true;
+          }
+          if (phoneKey && normalizePhoneKey(account.phone || "") === phoneKey) {
+            return true;
+          }
+          return false;
+        });
 
         if (exists) {
           setMessage(messageEl, "Username or email already exists.", true);
@@ -448,7 +496,9 @@
           (item) =>
             normalizeKey(item.username) === lookupKey ||
             normalizeKey(item.email) === lookupKey ||
-            normalizeKey(item.phone || "") === lookupKey
+            normalizePhoneKey(item.phone || "") === normalizePhoneKey(usernameOrEmail) ||
+            (normalizePhoneKey(usernameOrEmail) &&
+              normalizePhoneKey(item.phone || "").endsWith(normalizePhoneKey(usernameOrEmail)))
         );
 
         if (!account) {
@@ -469,6 +519,22 @@
             window.location.href = successTarget;
           }, 500);
         }
+      });
+    }
+
+    if (toggleButtons.length) {
+      toggleButtons.forEach((button) => {
+        const targetId = button.getAttribute("data-target");
+        const input = targetId ? document.getElementById(targetId) : null;
+        updateToggleButton(button, input);
+
+        button.addEventListener("click", () => {
+          if (!input) {
+            return;
+          }
+          input.type = input.type === "password" ? "text" : "password";
+          updateToggleButton(button, input);
+        });
       });
     }
   });

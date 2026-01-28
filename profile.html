@@ -39,11 +39,24 @@
           </div>
           <div class="profile-field">
             <label for="profile-phone">Phone</label>
-            <input type="tel" id="profile-phone">
+            <div class="profile-phone-row">
+              <select id="profile-phone-country" aria-label="Country code">
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+44">🇬🇧 +44</option>
+                <option value="+20">🇪🇬 +20</option>
+                <option value="+971">🇦🇪 +971</option>
+                <option value="+966">🇸🇦 +966</option>
+                <option value="+91">🇮🇳 +91</option>
+              </select>
+              <input type="tel" id="profile-phone" placeholder="Phone number">
+            </div>
           </div>
           <div class="profile-field">
             <label for="profile-password">New Password</label>
-            <input type="password" id="profile-password" placeholder="Leave blank to keep current">
+            <div class="profile-phone-row">
+              <input type="password" id="profile-password" placeholder="Leave blank to keep current">
+              <button class="toggle-password" type="button" data-toggle="password" data-target="profile-password">Show</button>
+            </div>
           </div>
           <div class="profile-field">
             <label for="profile-image">Profile Photo</label>
