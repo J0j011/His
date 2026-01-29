@@ -138,7 +138,10 @@ body {
 }
 
 .profile-phone-row .country-flag {
-  font-size: 18px;
+  width: 20px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 2px;
 }
 
 .profile-phone-row .country-menu {

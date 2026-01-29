@@ -5,6 +5,8 @@
   const CURRENT_USER_KEY = "his_current_user";
   const MAX_ACCOUNTS = 10;
   const API_BASE = window.HIS_API_BASE || "";
+  const PENDING_LOGIN_KEY = "his_pending_login";
+  const PENDING_PROFILE_KEY = "his_pending_profile";
 
   const loadAccounts = () => {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -67,6 +69,26 @@
     }
 
     return data;
+  };
+
+  const setPending = (key, payload) => {
+    sessionStorage.setItem(key, JSON.stringify(payload));
+  };
+
+  const getPending = (key) => {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) {
+      return null;
+    }
+    try {
+      return JSON.parse(raw);
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const clearPending = (key) => {
+    sessionStorage.removeItem(key);
   };
 
   const findInput = (ids) => {
@@ -135,9 +157,10 @@
     const profileAvatar = document.getElementById("profile-avatar");
     const profileInitials = document.getElementById("profile-initials");
     const profileImageInput = document.getElementById("profile-image");
-    const sendCodeButton = document.getElementById("send-code");
-    const resendCodeButton = document.getElementById("resend-code");
     const toggleButtons = document.querySelectorAll("button[data-toggle='password']");
+    const verifyForm = document.getElementById("verify-form");
+    const verifyCodeInput = document.getElementById("verify-code");
+    const verifyMessageEl = document.getElementById("verify-message");
 
     if (clearButton) {
       const isAdmin = localStorage.getItem(ADMIN_KEY) === "true";
@@ -235,17 +258,6 @@
       const phoneInput = document.getElementById("profile-phone");
       const phoneCountrySelect = document.getElementById("profile-phone-country");
       const passwordInput = document.getElementById("profile-password");
-      const codeInput = document.getElementById("verification-code");
-      const hideResend = () => {
-        if (resendCodeButton) {
-          resendCodeButton.style.display = "none";
-        }
-      };
-      const showResend = () => {
-        if (resendCodeButton) {
-          resendCodeButton.style.display = "inline-block";
-        }
-      };
 
       if (emailInput) {
         emailInput.value = account.email || "";
@@ -296,42 +308,7 @@
         });
       }
 
-      const sendVerificationCode = async () => {
-        const targetEmail = emailInput && emailInput.value ? emailInput.value : account.email;
-        if (!targetEmail) {
-          setMessage(profileMessageEl, "Enter an email first.", true);
-          return false;
-        }
-
-        try {
-          await postJson("/api/send-code", { email: targetEmail });
-          setMessage(profileMessageEl, `Verification code sent to ${targetEmail}.`, false);
-          showResend();
-          return true;
-        } catch (error) {
-          setMessage(
-            profileMessageEl,
-            "Could not send verification code. Please try again later.",
-            true
-          );
-          return false;
-        }
-      };
-
-      if (sendCodeButton) {
-        sendCodeButton.addEventListener("click", async () => {
-          await sendVerificationCode();
-        });
-      }
-
-      if (resendCodeButton) {
-        hideResend();
-        resendCodeButton.addEventListener("click", async () => {
-          await sendVerificationCode();
-        });
-      }
-
-      profileForm.addEventListener("submit", async (event) => {
+      profileForm.addEventListener("submit", (event) => {
         event.preventDefault();
 
         const updatedEmail = emailInput ? normalize(emailInput.value) : "";
@@ -347,18 +324,6 @@
 
         if (!hasChanges) {
           setMessage(profileMessageEl, "No changes to save.", true);
-          return;
-        }
-
-        const enteredCode = codeInput ? normalize(codeInput.value) : "";
-
-        if (!enteredCode) {
-          await sendVerificationCode();
-          setMessage(
-            profileMessageEl,
-            "Verification required. Check the code and enter it to save.",
-            true
-          );
           return;
         }
 
@@ -379,38 +344,89 @@
           setMessage(profileMessageEl, "Email or phone already in use.", true);
           return;
         }
+        setPending(PENDING_PROFILE_KEY, {
+          username: account.username,
+          updates: {
+            email: updatedEmail,
+            phone: updatedPhone,
+            password: updatedPassword || "",
+          },
+        });
+        window.location.href = "verify.html?context=profile";
+      });
+    }
+
+    if (verifyForm) {
+      const context = new URLSearchParams(window.location.search).get("context") || "profile";
+      const pending =
+        context === "login" ? getPending(PENDING_LOGIN_KEY) : getPending(PENDING_PROFILE_KEY);
+
+      if (!pending || !pending.email) {
+        setMessage(verifyMessageEl, "No verification request found.", true);
+        return;
+      }
+
+      const sendCode = async () => {
+        try {
+          await postJson("/api/send-code", { email: pending.email });
+          setMessage(verifyMessageEl, `Verification code sent to ${pending.email}.`, false);
+          return true;
+        } catch (error) {
+          setMessage(
+            verifyMessageEl,
+            "Could not send verification code. Please try again later.",
+            true
+          );
+          return false;
+        }
+      };
+
+      sendCode();
+
+      verifyForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const code = verifyCodeInput ? normalize(verifyCodeInput.value) : "";
+        if (!code) {
+          setMessage(verifyMessageEl, "Enter the verification code.", true);
+          return;
+        }
 
         try {
-          await postJson("/api/verify-code", {
-            email: updatedEmail,
-            code: enteredCode,
-          });
+          await postJson("/api/verify-code", { email: pending.email, code });
         } catch (error) {
           const detail = error.detail && error.detail.error ? error.detail.error : "invalid_code";
           if (detail === "code_expired") {
-            setMessage(profileMessageEl, "Code expired. Click resend.", true);
+            setMessage(verifyMessageEl, "Code expired. Reload to resend.", true);
           } else {
-            setMessage(profileMessageEl, "Invalid code. Try again.", true);
+            setMessage(verifyMessageEl, "Invalid code. Try again.", true);
           }
           return;
         }
 
-        account.email = updatedEmail;
-        account.phone = updatedPhone;
-        if (updatedPassword) {
-          account.password = updatedPassword;
+        if (context === "login") {
+          localStorage.setItem(CURRENT_USER_KEY, pending.username);
+          clearPending(PENDING_LOGIN_KEY);
+          window.location.href = pending.redirect || "homepage.html";
+          return;
         }
 
+        const accounts = loadAccounts();
+        const account = accounts.find(
+          (item) => normalizeKey(item.username) === normalizeKey(pending.username)
+        );
+        if (!account) {
+          setMessage(verifyMessageEl, "Account not found. Please log in again.", true);
+          return;
+        }
+
+        account.email = pending.updates.email;
+        account.phone = pending.updates.phone;
+        if (pending.updates.password) {
+          account.password = pending.updates.password;
+        }
         saveAccounts(accounts);
-        hideResend();
-        if (codeInput) {
-          codeInput.value = "";
-        }
-        if (passwordInput) {
-          passwordInput.value = "";
-        }
-
-        setMessage(profileMessageEl, "Profile updated successfully.", false);
+        clearPending(PENDING_PROFILE_KEY);
+        window.location.href = "profile.html";
       });
     }
 
@@ -525,14 +541,13 @@
           return;
         }
 
-        setMessage(messageEl, "Login successful. Redirecting...", false);
-        localStorage.setItem(CURRENT_USER_KEY, account.username);
-        const successTarget = form.getAttribute("data-success-target");
-        if (successTarget) {
-          setTimeout(() => {
-            window.location.href = successTarget;
-          }, 500);
-        }
+        const successTarget = form.getAttribute("data-success-target") || "homepage.html";
+        setPending(PENDING_LOGIN_KEY, {
+          username: account.username,
+          email: account.email,
+          redirect: successTarget,
+        });
+        window.location.href = "verify.html?context=login";
       });
     }
 

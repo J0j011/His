@@ -10,14 +10,11 @@
     return digits ? `+${digits}` : "";
   };
 
-  const getFlagEmoji = (code) => {
+  const getFlagUrl = (code) => {
     if (!code || code.length !== 2) {
       return "";
     }
-    const upper = code.toUpperCase();
-    const first = upper.charCodeAt(0) - 65 + 127462;
-    const second = upper.charCodeAt(1) - 65 + 127462;
-    return String.fromCodePoint(first, second);
+    return `https://flagcdn.com/24x18/${code.toLowerCase()}.png`;
   };
 
   const parseDialCode = (dialCode) => {
@@ -45,7 +42,7 @@
           name: item.name || "",
           code: item.code || item.iso2 || "",
           dialCode,
-          flag: item.flag || "",
+          flagUrl: "",
         };
       })
       .filter((item) => item.name && item.code && item.dialCode);
@@ -57,14 +54,14 @@
         name: "Palestine",
         code: "PS",
         dialCode: "+970",
-        flag: "",
+        flagUrl: "",
       });
     }
 
     return filtered
       .map((item) => ({
         ...item,
-        flag: item.flag || getFlagEmoji(item.code),
+        flagUrl: item.flagUrl || getFlagUrl(item.code),
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
   };
@@ -73,7 +70,8 @@
     const flagEl = picker.querySelector(".country-flag");
     const codeText = picker.querySelector(".country-code-text");
     if (flagEl) {
-      flagEl.textContent = country.flag || "";
+      flagEl.src = country.flagUrl || "";
+      flagEl.alt = country.code;
     }
     if (codeText) {
       codeText.textContent = country.dialCode;
@@ -102,7 +100,7 @@
       option.dataset.code = country.code;
       option.dataset.dial = country.dialCode;
       option.dataset.search = `${country.name} ${country.code} ${country.dialCode}`.toLowerCase();
-      option.innerHTML = `<span class="country-flag">${country.flag}</span><span class="country-name">${country.name}</span><span class="country-dial">${country.dialCode}</span>`;
+      option.innerHTML = `<img class="country-flag" src="${country.flagUrl}" alt="${country.code}"><span class="country-name">${country.name}</span><span class="country-dial">${country.dialCode}</span>`;
       option.addEventListener("click", () => {
         hiddenInput.value = country.dialCode;
         hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
@@ -168,8 +166,8 @@
     .then((items) => init(buildCountries(items)))
     .catch(() => {
       const fallback = [
-        { name: "Saudi Arabia", code: "SA", dialCode: "+966", flag: getFlagEmoji("SA") },
-        { name: "Palestine", code: "PS", dialCode: "+970", flag: getFlagEmoji("PS") },
+        { name: "Saudi Arabia", code: "SA", dialCode: "+966", flagUrl: getFlagUrl("SA") },
+        { name: "Palestine", code: "PS", dialCode: "+970", flagUrl: getFlagUrl("PS") },
       ];
       init(fallback);
     });

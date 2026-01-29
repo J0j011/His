@@ -119,8 +119,10 @@
 }
 
 .country-flag {
-    font-size: 16px;
-    line-height: 1;
+    width: 18px;
+    height: 14px;
+    object-fit: cover;
+    border-radius: 2px;
 }
 
 .country-code-text {

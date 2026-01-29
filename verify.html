@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify</title>
+    <link rel="stylesheet" href="style/login-signup.css">
+    <script src="auth-local.js" defer></script>
+  </head>
+  <body class="background">
+    <img class="image-container" src="images/wHIS.png" alt="Halley logo silhouette">
+
+    <div class="container">
+      <h1 class="header">Verify Who You Are</h1>
+      <p>We sent a verification code to your email.</p>
+
+      <form id="verify-form">
+        <div class="form-group">
+          <label class="username-label" for="verify-code">Verification Code:</label>
+          <input class="username" type="text" id="verify-code" name="verify-code" required placeholder="Enter the code">
+        </div>
+        <input class="login" type="submit" value="Verify">
+      </form>
+
+      <p id="verify-message" role="status" aria-live="polite"></p>
+    </div>
+  </body>
+</html>
