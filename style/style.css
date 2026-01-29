@@ -120,6 +120,83 @@ body {
   align-items: center;
 }
 
+.profile-phone-row .country-picker {
+  position: relative;
+  min-width: 140px;
+}
+
+.profile-phone-row .country-trigger {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #c7c7c7;
+  background: #ffffff;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.profile-phone-row .country-flag {
+  font-size: 18px;
+}
+
+.profile-phone-row .country-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 260px;
+  background: #ffffff;
+  border: 1px solid #c7c7c7;
+  border-radius: 10px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  padding: 10px;
+  display: none;
+  z-index: 20;
+}
+
+.profile-phone-row .country-menu.open {
+  display: block;
+}
+
+.profile-phone-row .country-search {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #c7c7c7;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.profile-phone-row .country-options {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-phone-row .country-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.profile-phone-row .country-option .country-name {
+  flex: 1;
+  font-size: 13px;
+}
+
+.profile-phone-row .country-option .country-dial {
+  font-weight: bold;
+}
+.profile-phone-row .country-option:hover,
+.profile-phone-row .country-option.active {
+  background: #f2f2f2;
+}
+
 .profile-phone-row select {
   padding: 10px;
   border-radius: 8px;

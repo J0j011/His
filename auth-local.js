@@ -88,25 +88,37 @@
     button.textContent = isHidden ? "Show" : "Hide";
   };
 
-  const parsePhoneForSelect = (phoneValue, selectEl, inputEl) => {
-    if (!phoneValue || !selectEl || !inputEl) {
+  const parsePhoneForSelect = (phoneValue, countryInput, inputEl) => {
+    if (!phoneValue || !countryInput || !inputEl) {
       return;
     }
 
     const normalized = normalizePhoneKey(phoneValue);
-    const options = Array.from(selectEl.options || []);
-    const match = options
-      .map((option) => option.value)
+    const available = Array.isArray(window.HIS_COUNTRIES)
+      ? window.HIS_COUNTRIES.map((item) => item.dialCode)
+      : [];
+    const match = available
+      .filter(Boolean)
       .sort((a, b) => b.length - a.length)
       .find((value) => normalized.startsWith(value));
 
     if (match) {
-      selectEl.value = match;
+      countryInput.value = match;
+      countryInput.dispatchEvent(new Event("change", { bubbles: true }));
       inputEl.value = normalized.slice(match.length);
       return;
     }
 
     inputEl.value = normalized;
+  };
+
+  const whenCountriesReady = (callback) => {
+    if (Array.isArray(window.HIS_COUNTRIES) && window.HIS_COUNTRIES.length) {
+      callback();
+      return;
+    }
+
+    document.addEventListener("his:countries-loaded", () => callback(), { once: true });
   };
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -239,7 +251,9 @@
         emailInput.value = account.email || "";
       }
       if (phoneInput) {
-        parsePhoneForSelect(account.phone || "", phoneCountrySelect, phoneInput);
+        whenCountriesReady(() => {
+          parsePhoneForSelect(account.phone || "", phoneCountrySelect, phoneInput);
+        });
       }
 
       const imageKey = imageKeyFor(currentUser);

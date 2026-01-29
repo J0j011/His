@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
     <title>Sign Up Page</title>
   </head>
   <link rel="stylesheet" href="style/login-signup.css">
+  <script src="country-picker.js" defer></script>
   <script src="auth-local.js" defer></script>
   <body class="background">
       <img class="image-container" src="images/wHIS.png" alt="Halley logo silhouette">
@@ -34,14 +36,17 @@
       <div class="form-group">
       <label class="username-label" for="phone">Phone:</label>
       <div class="phone-row">
-        <select class="country-code" id="phone-country" name="phone-country" aria-label="Country code">
-          <option value="+1">🇺🇸 +1</option>
-          <option value="+44">🇬🇧 +44</option>
-          <option value="+20">🇪🇬 +20</option>
-          <option value="+971">🇦🇪 +971</option>
-          <option value="+966">🇸🇦 +966</option>
-          <option value="+91">🇮🇳 +91</option>
-        </select>
+        <div class="country-picker" data-country-picker data-default-code="+966">
+          <button class="country-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="country-flag" aria-hidden="true"></span>
+            <span class="country-code-text"></span>
+          </button>
+          <input type="hidden" id="phone-country" name="phone-country" value="+966">
+          <div class="country-menu" role="listbox">
+            <input class="country-search" type="text" placeholder="Search country or code">
+            <div class="country-options"></div>
+          </div>
+        </div>
         <input class="username" type="tel" id="phone" name="phone" placeholder="Phone number">
       </div>
       <br><br>

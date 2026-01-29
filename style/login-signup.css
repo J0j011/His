@@ -101,10 +101,87 @@
     gap: 8px;
 }
 
-.country-code {
-    padding: 5px;
+.country-picker {
+    position: relative;
+    min-width: 120px;
+}
+
+.country-trigger {
+    width: 100%;
+    padding: 5px 8px;
     border: 1px solid #ccc;
     border-radius: 3px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.country-flag {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.country-code-text {
+    font-weight: bold;
+}
+
+.country-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 240px;
+    background: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    display: none;
+    z-index: 10;
+}
+
+.country-menu.open {
+    display: block;
+}
+
+.country-search {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+
+.country-options {
+    max-height: 180px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.country-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.country-option .country-name {
+    flex: 1;
+    font-size: 13px;
+}
+
+.country-option .country-dial {
+    font-weight: bold;
+}
+
+.country-option:hover,
+.country-option.active {
+    background: #f2f2f2;
 }
 
 .secondary-button {

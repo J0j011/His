@@ -6,6 +6,7 @@
     <title>My Profile</title>
     <link rel="stylesheet" href="style/style.css">
     <script src="config.js"></script>
+    <script src="country-picker.js" defer></script>
     <script src="auth-local.js" defer></script>
   </head>
   <body>
@@ -40,14 +41,17 @@
           <div class="profile-field">
             <label for="profile-phone">Phone</label>
             <div class="profile-phone-row">
-              <select id="profile-phone-country" aria-label="Country code">
-                <option value="+1">🇺🇸 +1</option>
-                <option value="+44">🇬🇧 +44</option>
-                <option value="+20">🇪🇬 +20</option>
-                <option value="+971">🇦🇪 +971</option>
-                <option value="+966">🇸🇦 +966</option>
-                <option value="+91">🇮🇳 +91</option>
-              </select>
+              <div class="country-picker" data-country-picker data-default-code="+966" data-target-input="profile-phone-country">
+                <button class="country-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="country-flag" aria-hidden="true"></span>
+                  <span class="country-code-text"></span>
+                </button>
+                <input type="hidden" id="profile-phone-country" value="+966">
+                <div class="country-menu" role="listbox">
+                  <input class="country-search" type="text" placeholder="Search country or code">
+                  <div class="country-options"></div>
+                </div>
+              </div>
               <input type="tel" id="profile-phone" placeholder="Phone number">
             </div>
           </div>
