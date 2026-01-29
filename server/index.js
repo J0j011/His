@@ -79,6 +79,13 @@ app.post("/api/send-code", async (req, res) => {
     await transporter.sendMail(mailOptions);
     return res.json({ ok: true });
   } catch (error) {
+    console.error("SMTP send failed:", {
+      message: error && error.message ? error.message : String(error),
+      code: error && error.code ? error.code : undefined,
+      response: error && error.response ? error.response : undefined,
+      responseCode: error && error.responseCode ? error.responseCode : undefined,
+      command: error && error.command ? error.command : undefined,
+    });
     codeStore.delete(cleanEmail);
     return res.status(500).json({ error: "send_failed" });
   }
