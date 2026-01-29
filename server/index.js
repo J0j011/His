@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const app = express();
@@ -14,22 +13,8 @@ app.use(
 );
 app.use(express.json());
 
-const smtpHost = process.env.SMTP_HOST || "smtp.office365.com";
-const smtpPort = parseInt(process.env.SMTP_PORT || "587", 10);
-const smtpSecure = process.env.SMTP_SECURE === "true";
-const smtpUser = process.env.SMTP_USER || "";
-const smtpPass = process.env.SMTP_PASS || "";
-const smtpFrom = process.env.SMTP_FROM || smtpUser;
-
-const transporter = nodemailer.createTransport({
-  host: smtpHost,
-  port: smtpPort,
-  secure: smtpSecure,
-  auth: {
-    user: smtpUser,
-    pass: smtpPass,
-  },
-});
+const resendKey = process.env.RESEND_API_KEY || "";
+const resendFrom = process.env.RESEND_FROM || "";
 
 const codeStore = new Map();
 const CODE_TTL_MS = 5 * 60 * 1000;
@@ -42,6 +27,29 @@ app.get("/health", (req, res) => {
   res.json({ ok: true });
 });
 
+const sendEmail = async (to, code) => {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: resendFrom,
+      to: [to],
+      subject: "Your verification code",
+      text: `Your verification code is ${code}. It expires in 5 minutes.`,
+    }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    const error = new Error("resend_failed");
+    error.detail = text;
+    throw error;
+  }
+};
+
 app.post("/api/send-code", async (req, res) => {
   const email = req.body && typeof req.body.email === "string" ? req.body.email : "";
   const cleanEmail = normalizeEmail(email);
@@ -50,7 +58,7 @@ app.post("/api/send-code", async (req, res) => {
     return res.status(400).json({ error: "invalid_email" });
   }
 
-  if (!smtpUser || !smtpPass || !smtpFrom) {
+  if (!resendKey || !resendFrom) {
     return res.status(500).json({ error: "server_not_configured" });
   }
 
@@ -68,24 +76,11 @@ app.post("/api/send-code", async (req, res) => {
     lastSentAt: now,
   });
 
-  const mailOptions = {
-    from: smtpFrom,
-    to: cleanEmail,
-    subject: "Your verification code",
-    text: `Your verification code is ${code}. It expires in 5 minutes.`,
-  };
-
   try {
-    await transporter.sendMail(mailOptions);
+    await sendEmail(cleanEmail, code);
     return res.json({ ok: true });
   } catch (error) {
-    console.error("SMTP send failed:", {
-      message: error && error.message ? error.message : String(error),
-      code: error && error.code ? error.code : undefined,
-      response: error && error.response ? error.response : undefined,
-      responseCode: error && error.responseCode ? error.responseCode : undefined,
-      command: error && error.command ? error.command : undefined,
-    });
+    console.error("Resend failed:", error.detail || error.message || error);
     codeStore.delete(cleanEmail);
     return res.status(500).json({ error: "send_failed" });
   }
